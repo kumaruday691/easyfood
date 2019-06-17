@@ -13,6 +13,5 @@ class UnitOfWork extends Model with RestaurantsRepository
   }
   
   // region Properties
-  bool isLoading;
 
 }

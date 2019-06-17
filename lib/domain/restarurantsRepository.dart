@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:easyfood/requests/googleApiRequests.dart';
 import 'package:http/http.dart' as http;
 
@@ -29,9 +31,43 @@ mixin RestaurantsRepository on Model {
       return false;
     }
 
+    Map<String, dynamic> responseJson = json.decode(response.body);
+    if(!responseJson.containsKey("status"))
+    {
+      this._updateObserver(false);
+      return false;
+    }
+
+    if(responseJson["status"] != "OK")
+    {
+      this._updateObserver(false);
+      return false;
+    }
+
+    if(!responseJson.containsKey("results"))
+    {
+      this._updateObserver(false);
+      return false;
+    }
+
+    List<dynamic> resultsList = responseJson["results"];
+    resultsList.forEach((propertyMap) => this._createNewRestaurant(propertyMap));
+
+    return true;
+
   }
 
   // region Helper Methods
+  void _createNewRestaurant(dynamic restaurantProps)
+  {
+    Restaturant newRestaurant = new Restaturant();
+    bool isParsed = newRestaurant.copyFrom(restaurantProps);
+    if(isParsed)
+    {
+      this.restaurants.add(newRestaurant);
+    }
+  }
+
   void _updateObserver(bool isLoading)
   {
     isLoading = isLoading;
