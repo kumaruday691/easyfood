@@ -52,6 +52,7 @@ mixin RestaurantsRepository on Model {
 
     List<dynamic> resultsList = responseJson["results"];
     resultsList.forEach((propertyMap) => this._createNewRestaurant(propertyMap));
+    this._updateObserver(false);
 
     return true;
 
