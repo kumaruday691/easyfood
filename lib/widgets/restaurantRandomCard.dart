@@ -1,3 +1,4 @@
+import 'package:easyfood/domain/applicationEnvironment.dart';
 import 'package:easyfood/domain/launcher.dart';
 import 'package:easyfood/domain/restaurant.dart';
 import 'package:easyfood/domain/unitOfWork.dart';
@@ -6,9 +7,10 @@ import 'package:scoped_model/scoped_model.dart';
 
 class RestaurantRandomCard extends StatelessWidget {
 
-  final Restaurant restaurant;
+  Restaurant restaurant;
+  final ApplicationEnvironment applicationEnvironment;
 
-  const RestaurantRandomCard(this.restaurant);
+  RestaurantRandomCard(this.restaurant, this.applicationEnvironment);
 
   String _getImageFromReference()
   {
@@ -23,6 +25,13 @@ class RestaurantRandomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    // previously selected restaurant
+    if(applicationEnvironment.previouslyRandomizedRestaurant != null)
+    {
+      restaurant = applicationEnvironment.previouslyRandomizedRestaurant;
+    }
+
     final _imageSection = _getImageFromReference() != null
             ? Center(
                 child: CircleAvatar(
@@ -127,7 +136,13 @@ class RestaurantRandomCard extends StatelessWidget {
             SizedBox(
               height: 40.0,
             ),
-            _imageSection,
+            GestureDetector(
+              child: _imageSection,
+              onTap:() => {
+                this.applicationEnvironment.previouslyRandomizedRestaurant = restaurant,
+                Launcher(this.restaurant.photosLink).open()
+                },
+              ),
             _infoSection,
             _descriptionSection,
             

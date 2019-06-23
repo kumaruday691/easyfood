@@ -15,6 +15,7 @@ class Launcher {
     }
 
     if (await canLaunch(this.url)) {
+      
       await launch(this.url);
     } else {
       throw 'Could not open url .';

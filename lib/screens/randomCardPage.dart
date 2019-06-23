@@ -27,7 +27,7 @@ class RandomCardPage extends StatelessWidget {
 
           return PageView(
             children:  
-                 <Widget>[RestaurantRandomCard(restaurant)]
+                 <Widget>[RestaurantRandomCard(restaurant, this.applicationEnvironment)]
                 
           );
         },

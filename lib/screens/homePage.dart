@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage>
   void initState() {
     // guard clause - no location found
     final ApplicationEnvironment _applicationEnvironment = widget.applicationEnvironment;
-    _applicationEnvironment.setCurrentLocation().then((Location location) {
+    _applicationEnvironment.setCurrentLocation(context).then((Location location) {
       if (location == null)
       {
         _applicationEnvironment.showAlertDialog(context, "Location Error",
@@ -99,6 +99,7 @@ class _HomePageState extends State<HomePage>
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           //navigateToCreateGoal(GoalClass("", ""));
+          widget.applicationEnvironment.previouslyRandomizedRestaurant = null;
           Navigator.push(context, MaterialPageRoute(builder: (context) => RandomCardPage(this._getRandomRestaurant(), widget.applicationEnvironment)));
         },
         child: Icon(Icons.directions_run),

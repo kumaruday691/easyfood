@@ -1,17 +1,20 @@
 import 'package:easyfood/domain/filterCriteria.dart';
 import 'package:easyfood/domain/location.dart';
+import 'package:easyfood/domain/restaurant.dart';
 import 'package:easyfood/domain/unitOfWork.dart';
 import 'package:easyfood/screens/filterPage.dart';
 import 'package:flutter/material.dart';
 import 'package:gradient_app_bar/gradient_app_bar.dart';
 
 class ApplicationEnvironment {
+
   // region Constructor
   ApplicationEnvironment() {
     unitOfWork = new UnitOfWork();
     themeData = _createThemeData();
     location = null;
     filterCriteria = new FilterCriteria();
+    previouslyRandomizedRestaurant = null;
   }
 
   // region Properties
@@ -19,6 +22,7 @@ class ApplicationEnvironment {
   ThemeData themeData;
   Location location;
   FilterCriteria filterCriteria;
+  Restaurant previouslyRandomizedRestaurant;
 
   // region Public Methods
   Drawer buildApplicationDrawer(BuildContext context) {
@@ -48,10 +52,16 @@ class ApplicationEnvironment {
     return unitOfWork.fetchRestaurants(location, filterCriteria);
   }
 
-  Future<Location> setCurrentLocation() async {
+  Future<Location> setCurrentLocation(BuildContext context) async {
+    try{
     Location currentLocation = new Location();
     Future<Location> locationFuture = currentLocation.getCurrentLocation();
     return locationFuture;
+    }
+    on Exception catch(e)
+    {
+      showAlertDialog(context, "Network Error", "Failed to fetch current location");
+    }
   }
 
   AlertDialog showAlertDialog(
