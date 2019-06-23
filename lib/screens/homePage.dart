@@ -1,7 +1,14 @@
+import 'dart:math';
+
 import 'package:easyfood/domain/applicationEnvironment.dart';
 import 'package:easyfood/domain/location.dart';
+import 'package:easyfood/domain/restaurant.dart';
 import 'package:easyfood/domain/unitOfWork.dart';
+import 'package:easyfood/screens/availableRestaurantsPage.dart';
+import 'package:easyfood/screens/favoritesPage.dart';
+import 'package:easyfood/screens/randomCardPage.dart';
 import 'package:flutter/material.dart';
+import 'package:gradient_app_bar/gradient_app_bar.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class HomePage extends StatefulWidget {
@@ -35,20 +42,44 @@ class _HomePageState extends State<HomePage>
       }
 
       widget.applicationEnvironment.location = location;
-      refreshList();
+      widget.applicationEnvironment.refreshRestaurantsList();
     });
  
     super.initState();
+  }
+
+  Restaurant _getRandomRestaurant()
+  {
+    List<Restaurant> availableRestaurants = widget.applicationEnvironment.unitOfWork.restaurants;
+    if(availableRestaurants.length == 0)
+    {
+      widget.applicationEnvironment.showAlertDialog(context, "Error", "No restaurants found to randomize");
+      return null;
+    }
+
+    int maxLength = availableRestaurants.length;
+    int randomIndex = 0 + new Random().nextInt(maxLength - 1);
+    return availableRestaurants[randomIndex];
   }
 
   @override
   Widget build(BuildContext context) {
     ApplicationEnvironment _appEnv = widget.applicationEnvironment;
 
-    return Scaffold(
+    List<Widget> pages = new List<Widget>();
+    pages.add(AvailableRestaurantsPage(_appEnv));
+    pages.add(FavoritesPage(_appEnv));
+
+    return DefaultTabController(
+      length: 2,
+      initialIndex: 0,
+      child: Scaffold(
       drawer: _appEnv.buildApplicationDrawer(context),
-      appBar: AppBar(
-        title: Text('Restaurants'),
+      appBar: GradientAppBar(
+        title: Text('Eat-dom'),
+        backgroundColorStart: Color(0xffff512f),
+        backgroundColorEnd: Color(0xffdd2476),
+        
         actions: <Widget>[
          ScopedModelDescendant<UnitOfWork>(builder: (context, child, model){
             return IconButton(
@@ -60,35 +91,34 @@ class _HomePageState extends State<HomePage>
          },) 
         ],
       ),
-      body: _buildRestaurantsList(),
-    );
+      body: TabBarView(
+        children: pages,
+      ),
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          //navigateToCreateGoal(GoalClass("", ""));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => RandomCardPage(this._getRandomRestaurant(), widget.applicationEnvironment)));
+        },
+        child: Icon(Icons.directions_run),
+        elevation: 3.0,
+      ),
+
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.only(bottom: 20.0),
+        child: new TabBar(
+          tabs: <Widget>[
+            Tab(icon: Icon(Icons.restaurant)),
+            Tab(icon:Icon(Icons.favorite))
+          ],
+          unselectedLabelColor: Colors.blueGrey,
+          labelColor: Theme.of(context).accentColor,
+          indicatorColor: Colors.transparent,
+        ),
+      ),
+
+    ),);
+
   }
-
-  Future<bool> refreshList()
-  {
-    ApplicationEnvironment _appEnv = widget.applicationEnvironment;
-    return _appEnv.unitOfWork.fetchRestaurants(_appEnv.location, _appEnv.filterCriteria);
-  }
-
-  Widget _buildRestaurantsList() {
-    return ScopedModelDescendant<UnitOfWork>(builder: (context, child, model) {
-    Widget content = Center(child:Text("No restaurants found!"));
-    if(widget.applicationEnvironment.location == null)
-    {
-      content = Center(child: Text("Location information not available"),);
-    }
-
-    if(model.restaurants.length > 0 && !model.isLoading) {
-        content = Center(child:Text("Restaurants"));
-    }
-    else if(model.isLoading) {
-      content = Center(child:CircularProgressIndicator());
-    }
-    
-    return RefreshIndicator(onRefresh: refreshList, // needs future, so your function needs to be future
-      child:content
-      );
-    });
-  }
-
 }

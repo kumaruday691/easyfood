@@ -11,7 +11,7 @@ import 'package:scoped_model/scoped_model.dart';
 mixin RestaurantsRepository on Model {
   
   // region Properties
-  List<Restaturant> restaurants;
+  List<Restaurant> restaurants;
   bool isLoading;
 
   // region Public Methods
@@ -61,7 +61,7 @@ mixin RestaurantsRepository on Model {
   // region Helper Methods
   void _createNewRestaurant(dynamic restaurantProps)
   {
-    Restaturant newRestaurant = new Restaturant();
+    Restaurant newRestaurant = new Restaurant();
     bool isParsed = newRestaurant.copyFrom(restaurantProps);
     if(isParsed)
     {

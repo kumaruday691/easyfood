@@ -1,8 +1,9 @@
 import 'package:easyfood/domain/filterCriteria.dart';
 import 'package:easyfood/domain/location.dart';
 import 'package:easyfood/domain/unitOfWork.dart';
+import 'package:easyfood/screens/filterPage.dart';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart' as prefix0;
+import 'package:gradient_app_bar/gradient_app_bar.dart';
 
 class ApplicationEnvironment {
   // region Constructor
@@ -24,20 +25,27 @@ class ApplicationEnvironment {
     return Drawer(
         child: Column(
         children: <Widget>[
-        AppBar(
+        GradientAppBar(
           automaticallyImplyLeading: false,
           title: Text('Navigate'),
+          backgroundColorStart: Color(0xffff512f),
+          backgroundColorEnd: Color(0xffdd2476),
         ),
         ListTile(
           leading: Icon(Icons.search),
           title: Text('Filters'),
           onTap: () {
-            Navigator.pushReplacementNamed(context, '/');
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => FilterPage()));
           },
         ),
         Divider(),
       ],
     ));
+  }
+
+  Future<bool> refreshRestaurantsList()
+  {
+    return unitOfWork.fetchRestaurants(location, filterCriteria);
   }
 
   Future<Location> setCurrentLocation() async {
@@ -57,7 +65,9 @@ class ApplicationEnvironment {
             actions: <Widget>[
               FlatButton(
                 child: Text("Okay"),
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => {
+                  Navigator.of(context).pop()
+                  },
               )
             ],
           );
@@ -70,6 +80,8 @@ class ApplicationEnvironment {
     return ThemeData(
         brightness: Brightness.light,
         primarySwatch: Colors.orange,
-        accentColor: Colors.orangeAccent);
+        accentColor: Colors.orangeAccent,
+        cardColor: Colors.tealAccent,
+        );
   }
 }

@@ -1,9 +1,9 @@
 import './location.dart';
 
-class Restaturant 
+class Restaurant 
 {
   // region Constructor
-  Restaturant() 
+  Restaurant() 
   {
     location = new Location();
     id = "";
@@ -29,6 +29,7 @@ class Restaturant
   int usersVoted;
 
   // region Public Methods
+
   bool copyFrom(dynamic resultsMap) 
   {
     try 
@@ -117,6 +118,24 @@ class Restaturant
       return;
     }
 
-    this.photosLink = referenceList[0];
+    this.photosLink = _getPhotosLink(referenceList[0]);
   }
+
+  String _getPhotosLink(String unformattedString)
+  {
+    // guard clause - invalid link
+    if(unformattedString.isEmpty)
+    {
+      return "";
+    }
+
+    RegExp regex = new RegExp('https:[\'"]?([^\'" >]+)');
+    if(!regex.hasMatch(unformattedString))
+    {
+      return "";
+    }
+
+    return regex.stringMatch(unformattedString);
+  }
+
 }
