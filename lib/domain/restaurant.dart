@@ -25,7 +25,7 @@ class Restaurant
   String openTimings;
   String photosLink;
   String displayPhotoReference;
-  double rating;
+  dynamic rating;
   int usersVoted;
 
   // region Public Methods
@@ -63,7 +63,7 @@ class Restaurant
     this.name = resultsMap["name"];
     this.id = resultsMap["id"];
     this.priceLevel = resultsMap["price_level"];
-    this.rating = resultsMap["rating"];
+    this.rating = resultsMap["rating"] as num ;
     this.usersVoted = resultsMap["user_ratings_total"];
     this.location.address = resultsMap["vicinity"];
   }

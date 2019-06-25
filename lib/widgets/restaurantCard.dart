@@ -166,7 +166,7 @@ class RestaurantCardState extends State<RestaurantCard>
 
     Location location = restaturant.location;
     if (location == null) {
-      return "";
+      return "https://images.app.goo.gl/yvKsXenfLVhVLWWx8";
     }
 
     return 'https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}';
@@ -201,7 +201,7 @@ class RestaurantCardState extends State<RestaurantCard>
 
   String _getImageFromReference() {
     String photoRef = widget.currentRestaurant.displayPhotoReference;
-    if (photoRef.isEmpty) {
+    if (photoRef == null || photoRef.isEmpty) {
       return "";
     }
 
