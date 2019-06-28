@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ReviewStars extends StatelessWidget {
 
-  final double value;
+  final int value;
 
   const ReviewStars({Key key, this.value = 0})
       : assert(value != null),

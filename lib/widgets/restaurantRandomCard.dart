@@ -136,7 +136,7 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
 
   _showTimingsModal() {
     showModalBottomSheet(
-      isScrollControlled: true,
+      //isScrollControlled: true,
       context: context,
       builder: (BuildContext bc) {
         return ListView.builder(
