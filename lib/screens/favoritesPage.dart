@@ -21,6 +21,6 @@ class _FavoritesPageState extends State<FavoritesPage>
  {
    @override
   Widget build(BuildContext context) {
-    return RestaurantsViewBuilder(widget.applicationEnvironment);
+    return Center(child: Text("No favorites yet."),); 
   }
  }

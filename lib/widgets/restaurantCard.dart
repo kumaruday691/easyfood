@@ -2,11 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easyfood/domain/applicationEnvironment.dart';
 import 'package:easyfood/domain/launcher.dart';
 import 'package:easyfood/domain/location.dart';
+import 'package:easyfood/domain/mapNavigator.dart';
 import 'package:easyfood/domain/restaurant.dart';
-import 'package:platform/platform.dart';
+import 'package:easyfood/widgets/reviewStars.dart';
 import 'package:share/share.dart';
 import 'package:flutter/material.dart';
-import 'package:android_intent/android_intent.dart';
 
 class RestaurantCard extends StatefulWidget {
 
@@ -45,12 +45,12 @@ class RestaurantCardState extends State<RestaurantCard>
 
   @override
   Widget build(BuildContext context) {
-    String url = _getImageFromReference();
+    String url = widget.currentRestaurant.getImageFromReference();
     Restaurant currentRestaurant = widget.currentRestaurant;
     return Container(
       padding: EdgeInsets.only(left: 10.0, right: 5.0, top: 5.0),
       margin: EdgeInsets.only(bottom: 10.0),
-      height: 250,
+      height: 240,
       child: Row(
         children: <Widget>[
            Expanded(
@@ -64,7 +64,7 @@ class RestaurantCardState extends State<RestaurantCard>
                       fit: BoxFit.cover,
                       image: CachedNetworkImageProvider(url),
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
                     boxShadow: [
                       BoxShadow(
                           color: Colors.grey,
@@ -78,8 +78,9 @@ class RestaurantCardState extends State<RestaurantCard>
             
           ),
           Expanded(
+            flex: 1,
             child: Container(
-              padding: EdgeInsets.all(10.0),
+              padding: EdgeInsets.all(5.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -98,7 +99,7 @@ class RestaurantCardState extends State<RestaurantCard>
                         Icons.star,
                         color: Color(0xFFFFD700),
                       ),
-                      Text(_buildFormattedUserReview(),
+                      Text(widget.currentRestaurant.buildFormattedUserReview(),
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 18.0,
@@ -114,7 +115,7 @@ class RestaurantCardState extends State<RestaurantCard>
                   ),
                   Wrap(
                     //mainAxisSize: MainAxisSize.min,
-                    alignment: WrapAlignment.start,
+                    //alignment: WrapAlignment.start,
                     children: <Widget>[
                       // Icon(
                       //   Icons.location_on,
@@ -139,7 +140,7 @@ class RestaurantCardState extends State<RestaurantCard>
                   _headerItemBuild()
                 ],
               ),
-              margin: EdgeInsets.only(top: 10.0, bottom: 10.0),
+              //margin: EdgeInsets.only(top: 10.0, bottom: 10.0),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                       bottomRight: Radius.circular(10.0),
@@ -186,6 +187,7 @@ class RestaurantCardState extends State<RestaurantCard>
                         Icons.credit_card,
                         color: Color(0xFFFFD700),
                       ),
+                      SizedBox(width: 5,),
                       Text(priceLevelString,
                           style: TextStyle(
                             color: Colors.green,
@@ -193,39 +195,6 @@ class RestaurantCardState extends State<RestaurantCard>
                           )),
                     ],
                   );
-  }
-
-  String _buildFormattedUserReview() {
-    return "${widget.currentRestaurant.rating.toString()} (${widget.currentRestaurant.usersVoted})";
-  }
-
-  String _getImageFromReference() {
-    String photoRef = widget.currentRestaurant.displayPhotoReference;
-    if (photoRef == null || photoRef.isEmpty) {
-      return "";
-    }
-
-    return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoRef}&key=AIzaSyC5Qhe19ZLVWIZ5xCfLRzeRpvTzYU_X2PM";
-  }
-
-  _createContentTile() {
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(
-            "text",
-            style: TextStyle(fontFamily: 'Libre_Franklin', fontSize: 12.0),
-          ),
-          InkWell(
-            child: Icon(
-              Icons.more_vert,
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   _showMapNavigation()
@@ -242,26 +211,15 @@ class RestaurantCardState extends State<RestaurantCard>
       return;
     }
 
-    String destination=restaurantLocation.latitude.toString() + ","+restaurantLocation.longitude.toString();  // lat,long like 123.34,68.56
-    String origin=currentLocation.latitude.toString() + "," + currentLocation.longitude.toString();
-    String url = "https://www.google.com/maps/dir/?api=1&origin=" + origin + "&destination=" + destination + "&travelmode=driving&dir_action=navigate";
-
-    if (new LocalPlatform().isAndroid) {
-      final AndroidIntent intent = new AndroidIntent(
-          action: 'action_view',
-          data: Uri.encodeFull(url),
-          package: 'com.google.android.apps.maps');
-      intent.launch();
-    }
-    else {
-        Launcher(url).open();
-    }
+    MapNavigator.navigate(currentLocation, restaurantLocation);    
   }
 
   _headerItemBuild() {
-    return 
-        ButtonTheme.bar(
-          alignedDropdown: true,
+    return Align(
+      alignment: Alignment.center,
+      child:  ButtonTheme.bar(
+          
+          //alignedDropdown: true,
           child: new ButtonBar(
             
             children: <Widget>[
@@ -269,6 +227,7 @@ class RestaurantCardState extends State<RestaurantCard>
                 icon: Icon(
                   Icons.directions_car,
                   color: Theme.of(context).accentColor,
+                  size: 20,
                 ),
                 onPressed: () => {
                   _showMapNavigation()
@@ -280,6 +239,7 @@ class RestaurantCardState extends State<RestaurantCard>
                 icon: Icon(
                   Icons.favorite_border,
                   color: Theme.of(context).accentColor,
+                  size: 20,
                 ),
                 onPressed: () => {},
               ),
@@ -288,9 +248,10 @@ class RestaurantCardState extends State<RestaurantCard>
                 icon: Icon(
                   Icons.share,
                   color: Theme.of(context).accentColor,
+                  size: 20,
                 ),
                 onPressed: () {
-                  Share.share(_getImageFromReference());
+                  Share.share(widget.currentRestaurant.photosLink);
                 },
                 splashColor: Color(0xffdd2476),
               ),
@@ -298,6 +259,6 @@ class RestaurantCardState extends State<RestaurantCard>
             ],)
          
         
-    );
+    ),);
   }
 }

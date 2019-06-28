@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:easyfood/domain/restaurantDetail.dart';
 import 'package:easyfood/requests/googleApiRequests.dart';
 import 'package:http/http.dart' as http;
 
@@ -55,7 +56,34 @@ mixin RestaurantsRepository on Model {
     this._updateObserver(false);
 
     return true;
+  }
 
+  Future<RestaurantDetail> getRestaurantDetail(String placeId) async
+  {
+    this.isLoading = true;
+    http.Response response = await GoogleApiRequests.fetchRestaurantDetail(placeId);
+    if(response.statusCode != 200)
+    {
+      this._updateObserver(false);
+      return null;
+    }
+
+    Map<String, dynamic> responseJson = json.decode(response.body);
+    if(!responseJson.containsKey("status"))
+    {
+      this._updateObserver(false);
+      return null;
+    }
+
+    if(responseJson["status"] != "OK")
+    {
+      this._updateObserver(false);
+      return null;
+    }
+
+    Map<String, dynamic> resultMap = responseJson["result"];
+    this._updateObserver(false);
+    return new RestaurantDetail().copyFrom(resultMap);
   }
 
   // region Helper Methods
@@ -69,9 +97,9 @@ mixin RestaurantsRepository on Model {
     }
   }
 
-  void _updateObserver(bool isLoading)
+  void _updateObserver(bool isWaiting)
   {
-    isLoading = isLoading;
+    isLoading = isWaiting;
     notifyListeners();
   }
   
