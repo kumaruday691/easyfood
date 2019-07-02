@@ -119,7 +119,7 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
       subtitle: ButtonTheme.bar(child: ButtonBar(
         alignment: MainAxisAlignment.center,
         children: <Widget>[
-          ReviewStars(value:currentReview.rating),
+          ReviewStars(currentReview.rating.toDouble(), null, null),
           Text("(${currentReview.postedTime})")
         ],
       ),

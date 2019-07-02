@@ -13,7 +13,7 @@ class ApplicationEnvironment {
     unitOfWork = new UnitOfWork();
     themeData = _createThemeData();
     location = null;
-    filterCriteria = new FilterCriteria();
+    filterCriteria = _findOrAddFilterCriteria(); 
     previouslyRandomizedRestaurant = null;
   }
 
@@ -39,7 +39,7 @@ class ApplicationEnvironment {
           leading: Icon(Icons.search),
           title: Text('Filters'),
           onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => FilterPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => FilterPage(this)));
           },
         ),
         Divider(),
@@ -94,4 +94,9 @@ class ApplicationEnvironment {
         cardColor: Colors.tealAccent,
         );
   }
+
+  FilterCriteria _findOrAddFilterCriteria(){
+    return new FilterCriteria();
+  }
+
 }

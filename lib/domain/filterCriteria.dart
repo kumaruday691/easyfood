@@ -3,18 +3,21 @@ class FilterCriteria
   // region Constructor
   FilterCriteria()
   {
-    radiusCovered = 15000;
-    keyword = "";
+    radiusCovered = 10000.0;
+    keywords = [];
     openNow = true;
-    minPriceLevel = 0;
-    maxPriceLevel = 4;
+    maxPriceLevel = 4.0;
   }
 
   // region Properties
-  int radiusCovered;
-  String keyword;
+  double radiusCovered;
+  List<String> keywords;
   bool openNow;
-  int minPriceLevel;
-  int maxPriceLevel;
+  double maxPriceLevel;
+
+  // region Public Methods
+  String getFormattedkeyWords(bool shouldAnd){
+    return keywords.join(shouldAnd ? "AND" : "OR");
+  }
 
 }

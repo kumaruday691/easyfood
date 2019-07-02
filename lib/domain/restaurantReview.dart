@@ -14,6 +14,6 @@ class RestaurantReview {
   String comment;
   String postedTime;
   String profilePictureUrl;
-  dynamic rating;
+  num rating;
 
 }

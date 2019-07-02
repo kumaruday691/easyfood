@@ -1,34 +1,54 @@
+import 'package:easyfood/domain/applicationEnvironment.dart';
+import 'package:easyfood/domain/filterCriteria.dart';
 import 'package:easyfood/domain/unitOfWork.dart';
+import 'package:easyfood/widgets/reviewStars.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-class FilterPage extends StatelessWidget {
+class FilterPage extends StatefulWidget {
+  final List<String> keywords = [
+    "chinese",
+    "thai",
+    "italian",
+    "indian",
+    "continental",
+    "mexican",
+    "american(really?)"
+  ];
+
+  final ApplicationEnvironment applicationEnvironment;
+
+  FilterPage(this.applicationEnvironment);
+
+  @override
+  State<StatefulWidget> createState() {
+    return FilterPageState();
+  }
+}
+
+class FilterPageState extends State<FilterPage> {
+  FilterCriteria filterCriteria;
 
   @override
   Widget build(BuildContext context) {
-    
+    filterCriteria = widget.applicationEnvironment.filterCriteria;
+
     final _recordingSection = SafeArea(
       child: ScopedModelDescendant<UnitOfWork>(
         builder: (_, __, model) {
-
-          return PageView(
-            children:  
-                 <Widget>[_buildCardSection(context)]
-                
-          );
+          return PageView(children: <Widget>[_buildCardSection(context)]);
         },
       ),
     );
-
-  return Scaffold(
+    return Scaffold(
       backgroundColor: Colors.white70,
       //appBar: _appBar,
       body: _recordingSection,
     );
   }
 
-    _closeButton(BuildContext context) {
-      return Positioned(
+  _closeButton(BuildContext context) {
+    return Positioned(
       top: 0.0,
       left: 0.0,
       child: Padding(
@@ -38,7 +58,8 @@ class FilterPage extends StatelessWidget {
             return IconButton(
               icon: Icon(
                 Icons.close,
-                color: Color(0xffdd2476),
+                color: Theme.of(context).primaryColor,
+                size: 30,
               ),
               onPressed: () {
                 //model.stop();
@@ -49,23 +70,20 @@ class FilterPage extends StatelessWidget {
         ),
       ),
     );
-    }
+  }
 
   _buildCardSection(BuildContext context) => Card(
-        color: Colors.white,
-        child: ListView(
-          children: <Widget>[
-            
-            SizedBox(
-              height: 40.0,
-            ),
-            _buildInputCardView(context)
-            
-          ],
-        ));
+      color: Colors.white,
+      child: ListView(
+        children: <Widget>[
+          SizedBox(
+            height: 20.0,
+          ),
+          _buildInputCardView(context)
+        ],
+      ));
 
-  _buildInputCardView(BuildContext context) 
-  {
+  _buildInputCardView(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       child: ScopedModelDescendant<UnitOfWork>(
@@ -73,9 +91,8 @@ class FilterPage extends StatelessWidget {
           return Stack(
             children: <Widget>[
               SizedBox(
-              height: 40.0,
-            ),
-            
+                height: 40.0,
+              ),
               _buildInputFields(),
               _closeButton(context),
             ],
@@ -84,89 +101,177 @@ class FilterPage extends StatelessWidget {
       ),
     );
   }
-  _buildInputFields(){
+
+  _buildMultiSelectOptions() {
+    List<Widget> choices = List();
+    widget.keywords.forEach((item) {
+      choices.add(Container(
+        padding: const EdgeInsets.all(2.0),
+        child: ChoiceChip(
+          label: Text(item),
+          selected: filterCriteria.keywords.contains(item),
+          onSelected: (selected) {
+            setState(() {
+              filterCriteria.keywords.contains(item)
+                  ? filterCriteria.keywords.remove(item)
+                  : filterCriteria.keywords.add(item);
+            });
+          },
+        ),
+      ));
+    });
+
+    return Wrap(
+      children: choices,
+    );
+  }
+
+  _buildInputFields() {
     return Form(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          children: <Widget>[Center(
-            child: CircleAvatar(
-              radius: 60.0,
-              backgroundColor: Colors.black12,
-              backgroundImage: AssetImage("assets/def-res.png"),
+          children: <Widget>[
+            Center(
+              child: CircleAvatar(
+                radius: 60.0,
+                backgroundColor: Colors.black12,
+                backgroundImage: AssetImage("assets/tenor.gif"),
+              ),
             ),
-          ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 64.0, 8.0),
-              child: TextFormField(
-                decoration: InputDecoration(
-                  icon: Icon(Icons.flight_takeoff, color: Colors.red),
-                  labelText: "From",
+            SizedBox(
+              height: 30,
+            ),
+            Align(
+              alignment: Alignment.center,
+              widthFactor: 2.0,
+              child: Row(
+                //padding: const EdgeInsets.fromLTRB(0.0, 0.0, 64.0, 8.0),
+                children: <Widget>[
+                  Icon(
+                    Icons.location_searching,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text("Search Radius"),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  DropdownButton<int>(
+                    hint: Text('10'),
+                    items: <int>[
+                      5,
+                      10,
+                      15,
+                      20,
+                      25,
+                    ].map((int value) {
+                      return new DropdownMenuItem<int>(
+                        value: value,
+                        child: Text(value.toString()),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        filterCriteria.radiusCovered = newValue * 1609.34;
+                      });
+                    },
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    "miles",
+                    style: TextStyle(
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(),
+            SizedBox(
+              height: 10,
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Text(
+                "Filter by types",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  decorationThickness: 5.0,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 64.0, 8.0),
-              child: TextFormField(
-                decoration: InputDecoration(
-                  icon: Icon(Icons.flight_land, color: Colors.red),
-                  labelText: "To",
-                ),
-              ),
+            SizedBox(
+              height: 10,
+            ),
+            _buildMultiSelectOptions(),
+            Divider(),
+            SizedBox(
+              height: 10,
             ),
             Row(
-              children: <Widget>[
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        icon: Icon(Icons.flight_land, color: Colors.red),
-                        labelText: "To",
-                      ),
-                    ),
+              children:<Widget>[
+                Icon(
+                    Icons.lock_open,
+                    color: Theme.of(context).primaryColor,
                   ),
-                ),
-                Container(
-                  width: 64.0,
-                  alignment: Alignment.center,
-                  child: Icon(Icons.add_circle_outline, color: Colors.grey),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 64.0, 8.0),
-              child: TextFormField(
-                decoration: InputDecoration(
-                  icon: Icon(Icons.person, color: Colors.red),
-                  labelText: "Passengers",
+                  SizedBox(
+                    width: 5,
+                  ),
+                Text(
+                "Open Only",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  decorationThickness: 5.0,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
+            Switch(
+              value: filterCriteria.openNow,
+              onChanged: (value) {
+                setState(() {
+                  filterCriteria.openNow = value;
+                });
+              },
+              activeTrackColor: Colors.deepOrangeAccent,
+              activeColor: Theme.of(context).primaryColor,
             ),
-            Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: Icon(Icons.date_range, color: Colors.red),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
-                    child: TextFormField(
-                      decoration: InputDecoration(labelText: "Departure"),
-                    ),
+            ],),
+            Divider(),
+            SizedBox(height: 10,),
+            Row(children: <Widget>[
+              Icon(
+                    Icons.credit_card,
+                    color: Theme.of(context).primaryColor,
                   ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 16.0),
-                    child: TextFormField(
-                      decoration: InputDecoration(labelText: "Arrival"),
-                    ),
+                  SizedBox(
+                    width: 5,
                   ),
+                Text(
+                "Upto ",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  decorationThickness: 5.0,
+                  fontWeight: FontWeight.w600,
                 ),
-              ],
-            ),
+              ), 
+              ReviewStars(filterCriteria.maxPriceLevel, (rating) => setState(() => filterCriteria.maxPriceLevel = rating),  Icons.attach_money)
+
+            ],),
+            SizedBox(height: 10,),
+            Divider(),
+            SizedBox(height: 40,),
+            RaisedButton(
+              child: Text("Save"),
+              onPressed: () => {},
+              color: Theme.of(context).primaryColor,
+            )
+            
           ],
         ),
       ),
