@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:easyfood/domain/filterCriteria.dart';
 import 'package:easyfood/domain/location.dart';
 import 'package:easyfood/domain/restaurant.dart';
@@ -5,6 +6,7 @@ import 'package:easyfood/domain/unitOfWork.dart';
 import 'package:easyfood/screens/filterPage.dart';
 import 'package:flutter/material.dart';
 import 'package:gradient_app_bar/gradient_app_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApplicationEnvironment {
 
@@ -13,8 +15,9 @@ class ApplicationEnvironment {
     unitOfWork = new UnitOfWork();
     themeData = _createThemeData();
     location = null;
-    filterCriteria = _findOrAddFilterCriteria(); 
     previouslyRandomizedRestaurant = null;
+
+    _findOrAddFilterCriteria(); 
   }
 
   // region Properties
@@ -49,6 +52,7 @@ class ApplicationEnvironment {
 
   Future<bool> refreshRestaurantsList()
   {
+    unitOfWork.restaurants.clear();
     return unitOfWork.fetchRestaurants(location, filterCriteria);
   }
 
@@ -95,8 +99,24 @@ class ApplicationEnvironment {
         );
   }
 
-  FilterCriteria _findOrAddFilterCriteria(){
-    return new FilterCriteria();
+  void _findOrAddFilterCriteria() async{
+    FilterCriteria defaultFilterCriteria = new FilterCriteria();
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String filterCriteriaString = prefs.getString('filterCriteria');
+    if(filterCriteriaString == null || filterCriteriaString.isEmpty || filterCriteriaString == "null"){
+      this.filterCriteria =  defaultFilterCriteria;
+      return;
+    }
+
+    Map<String, dynamic> criteriaMap = jsonDecode(filterCriteriaString);
+    if(criteriaMap == null){
+      this.filterCriteria = defaultFilterCriteria;
+      return;
+    }
+
+    defaultFilterCriteria.copyFrom(criteriaMap);
+    this.filterCriteria = defaultFilterCriteria;
   }
 
 }

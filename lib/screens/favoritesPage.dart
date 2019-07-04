@@ -21,6 +21,6 @@ class _FavoritesPageState extends State<FavoritesPage>
  {
    @override
   Widget build(BuildContext context) {
-    return Center(child: Text("No favorites yet."),); 
+    return Center(child: Text("No favorites yet. Feature yet to be implemented"),); 
   }
  }

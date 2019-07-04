@@ -17,7 +17,9 @@ class GoogleApiRequests {
       'radius': filterCriteria.radiusCovered.toString(),
       'key': 'AIzaSyC5Qhe19ZLVWIZ5xCfLRzeRpvTzYU_X2PM',
       'type': 'restaurant',
-      'keyword': filterCriteria.getFormattedkeyWords(false)
+      'keyword': filterCriteria.getFormattedkeyWords(false),
+      'maxprice': filterCriteria.maxPriceLevel.toString(),
+      //'opennow':filterCriteria.openNow.toString()
     });
 
     return await http.get(uri);

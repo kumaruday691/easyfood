@@ -12,7 +12,6 @@ import 'package:gradient_app_bar/gradient_app_bar.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class HomePage extends StatefulWidget {
-
   // region Properties
   final ApplicationEnvironment applicationEnvironment;
 
@@ -23,19 +22,18 @@ class HomePage extends StatefulWidget {
   State<StatefulWidget> createState() {
     return _HomePageState();
   }
-
 }
 
-class _HomePageState extends State<HomePage>
- {
-
+class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     // guard clause - no location found
-    final ApplicationEnvironment _applicationEnvironment = widget.applicationEnvironment;
-    _applicationEnvironment.setCurrentLocation(context).then((Location location) {
-      if (location == null)
-      {
+    final ApplicationEnvironment _applicationEnvironment =
+        widget.applicationEnvironment;
+    _applicationEnvironment
+        .setCurrentLocation(context)
+        .then((Location location) {
+      if (location == null) {
         _applicationEnvironment.showAlertDialog(context, "Location Error",
             "Could not fetch current location. Please check your location settings.");
         return;
@@ -44,21 +42,25 @@ class _HomePageState extends State<HomePage>
       widget.applicationEnvironment.location = location;
       widget.applicationEnvironment.refreshRestaurantsList();
     });
- 
+
     super.initState();
   }
 
-  Restaurant _getRandomRestaurant()
-  {
-    List<Restaurant> availableRestaurants = widget.applicationEnvironment.unitOfWork.restaurants;
-    if(availableRestaurants.length == 0)
-    {
-      widget.applicationEnvironment.showAlertDialog(context, "Error", "No restaurants found to randomize");
+  Restaurant _getRandomRestaurant() {
+    List<Restaurant> availableRestaurants =
+        widget.applicationEnvironment.unitOfWork.restaurants;
+    if (availableRestaurants.length == 0) {
+      widget.applicationEnvironment.showAlertDialog(
+          context, "Error", "No restaurants found to randomize");
       return null;
     }
 
     int maxLength = availableRestaurants.length;
-    int randomIndex = 0 + new Random().nextInt(maxLength - 1);
+    if (maxLength == 1) {
+      return availableRestaurants[0];
+    }
+
+    int randomIndex = 0 + new Random().nextInt(maxLength);
     return availableRestaurants[randomIndex];
   }
 
@@ -74,52 +76,56 @@ class _HomePageState extends State<HomePage>
       length: 2,
       initialIndex: 0,
       child: Scaffold(
-      drawer: _appEnv.buildApplicationDrawer(context),
-      appBar: GradientAppBar(
-        title: Text('Eat-dom'),
-        backgroundColorStart: Color(0xffff512f),
-        backgroundColorEnd: Color(0xffdd2476),
-        
-        actions: <Widget>[
-         ScopedModelDescendant<UnitOfWork>(builder: (context, child, model){
-            return IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () {
-              model.fetchRestaurants(_appEnv.location, _appEnv.filterCriteria);
-            },
-          );
-         },) 
-        ],
-      ),
-      body: TabBarView(
-        children: pages,
-      ),
-
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          //navigateToCreateGoal(GoalClass("", ""));
-          widget.applicationEnvironment.previouslyRandomizedRestaurant = null;
-          Navigator.push(context, MaterialPageRoute(builder: (context) => RandomCardPage(this._getRandomRestaurant(), widget.applicationEnvironment)));
-        },
-        child: Icon(Icons.directions_run),
-        elevation: 3.0,
-      ),
-
-      bottomNavigationBar: Container(
-        margin: EdgeInsets.only(bottom: 20.0),
-        child: new TabBar(
-          tabs: <Widget>[
-            Tab(icon: Icon(Icons.restaurant)),
-            Tab(icon:Icon(Icons.favorite))
+        drawer: _appEnv.buildApplicationDrawer(context),
+        appBar: GradientAppBar(
+          title: Text('Eat-dom'),
+          backgroundColorStart: Color(0xffff512f),
+          backgroundColorEnd: Color(0xffdd2476),
+          actions: <Widget>[
+            ScopedModelDescendant<UnitOfWork>(
+              builder: (context, child, model) {
+                return IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: () {
+                    model.fetchRestaurants(
+                        _appEnv.location, _appEnv.filterCriteria);
+                  },
+                );
+              },
+            )
           ],
-          unselectedLabelColor: Colors.blueGrey,
-          labelColor: Theme.of(context).accentColor,
-          indicatorColor: Colors.transparent,
+        ),
+        body: TabBarView(
+          children: pages,
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            //navigateToCreateGoal(GoalClass("", ""));
+            widget.applicationEnvironment.previouslyRandomizedRestaurant = null;
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => RandomCardPage(
+                        this._getRandomRestaurant(),
+                        widget.applicationEnvironment)));
+          },
+          child: Icon(Icons.directions_run),
+          elevation: 3.0,
+        ),
+        bottomNavigationBar: Container(
+          margin: EdgeInsets.only(bottom: 20.0),
+          child: new TabBar(
+            tabs: <Widget>[
+              Tab(icon: Icon(Icons.restaurant)),
+              Tab(icon: Icon(Icons.favorite))
+            ],
+            unselectedLabelColor: Colors.blueGrey,
+            labelColor: Theme.of(context).accentColor,
+            indicatorColor: Colors.transparent,
+          ),
         ),
       ),
-
-    ),);
-
+    );
   }
 }

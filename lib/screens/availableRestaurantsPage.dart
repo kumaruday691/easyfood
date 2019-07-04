@@ -45,8 +45,18 @@ class _AvailableRestaurantsPageState extends State<AvailableRestaurantsPage>
         ),);
     }
 
-    if(model.restaurants.length > 0 && !model.isLoading) {
+    if( !model.isLoading) {
+      if(model.restaurants.length > 0) {
         content = RestaurantsViewBuilder(widget.applicationEnvironment); 
+      }
+      else{
+        content= Center(
+          child: Column(children: <Widget>[
+          SizedBox(height: 60,),
+          Icon(Icons.sentiment_very_dissatisfied, color: Theme.of(context).primaryColor, size: 50,),
+          Text("No matches based on your filter")
+        ],),);
+      }
     }
     else if(model.isLoading) {
       content = Center(child:CircularProgressIndicator());

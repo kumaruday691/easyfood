@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'dart:async';
+import 'package:rxdart/subjects.dart';
 import 'package:easyfood/domain/applicationEnvironment.dart';
 import 'package:easyfood/domain/filterCriteria.dart';
 import 'package:easyfood/domain/unitOfWork.dart';
 import 'package:easyfood/widgets/reviewStars.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FilterPage extends StatefulWidget {
   final List<String> keywords = [
@@ -27,7 +31,18 @@ class FilterPage extends StatefulWidget {
 }
 
 class FilterPageState extends State<FilterPage> {
+  PublishSubject<bool> subject = PublishSubject();
   FilterCriteria filterCriteria;
+
+  _saveFilterCriteria(FilterCriteria filterCriteria) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove("filterCriteria");
+    prefs.setString("filterCriteria", jsonEncode(filterCriteria.toMap()));
+    this.subject.add(true);
+    
+    bool isSaved = prefs.containsKey("filterCriteria");
+    print(isSaved);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +175,7 @@ class FilterPageState extends State<FilterPage> {
                     width: 20,
                   ),
                   DropdownButton<int>(
-                    hint: Text('10'),
+                    hint: Text((filterCriteria.radiusCovered / 1609.34).toString()),
                     items: <int>[
                       5,
                       10,
@@ -215,63 +230,80 @@ class FilterPageState extends State<FilterPage> {
               height: 10,
             ),
             Row(
-              children:<Widget>[
+              children: <Widget>[
                 Icon(
-                    Icons.lock_open,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                Text(
-                "Open Only",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  decorationThickness: 5.0,
-                  fontWeight: FontWeight.w600,
+                  Icons.lock_open,
+                  color: Theme.of(context).primaryColor,
                 ),
-              ),
-            Switch(
-              value: filterCriteria.openNow,
-              onChanged: (value) {
-                setState(() {
-                  filterCriteria.openNow = value;
-                });
-              },
-              activeTrackColor: Colors.deepOrangeAccent,
-              activeColor: Theme.of(context).primaryColor,
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  "Open Only",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    decorationThickness: 5.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Switch(
+                  value: filterCriteria.openNow,
+                  onChanged: (value) {
+                    setState(() {
+                      filterCriteria.openNow = value;
+                    });
+                  },
+                  activeTrackColor: Colors.deepOrangeAccent,
+                  activeColor: Theme.of(context).primaryColor,
+                ),
+              ],
             ),
-            ],),
             Divider(),
-            SizedBox(height: 10,),
-            Row(children: <Widget>[
-              Icon(
-                    Icons.credit_card,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                Text(
-                "Upto ",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  decorationThickness: 5.0,
-                  fontWeight: FontWeight.w600,
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: <Widget>[
+                Icon(
+                  Icons.credit_card,
+                  color: Theme.of(context).primaryColor,
                 ),
-              ), 
-              ReviewStars(filterCriteria.maxPriceLevel, (rating) => setState(() => filterCriteria.maxPriceLevel = rating),  Icons.attach_money)
-
-            ],),
-            SizedBox(height: 10,),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  "Upto ",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    decorationThickness: 5.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                ReviewStars(
+                    filterCriteria.maxPriceLevel,
+                    (rating) =>
+                        setState(() => filterCriteria.maxPriceLevel = rating),
+                    Icons.attach_money)
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
             Divider(),
-            SizedBox(height: 40,),
+            SizedBox(
+              height: 40,
+            ),
             RaisedButton(
               child: Text("Save"),
-              onPressed: () => {},
+              onPressed: () => {
+                _saveFilterCriteria(filterCriteria),
+                 widget.applicationEnvironment.filterCriteria = filterCriteria,
+                 widget.applicationEnvironment.refreshRestaurantsList(),
+                Navigator.pop(context),
+                Navigator.pop(context)
+                },
               color: Theme.of(context).primaryColor,
             )
-            
           ],
         ),
       ),

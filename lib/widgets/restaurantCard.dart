@@ -107,11 +107,11 @@ class RestaurantCardState extends State<RestaurantCard>
                     ],
                   ),
                   SizedBox(
-                    height: 10.0,
+                    height: 7.0,
                   ),
                   _buildPriceLevel(),
                   SizedBox(
-                    height: 10.0,
+                    height: 7.0,
                   ),
                   Wrap(
                     //mainAxisSize: MainAxisSize.min,

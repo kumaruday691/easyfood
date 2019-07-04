@@ -52,7 +52,8 @@ mixin RestaurantsRepository on Model {
     }
 
     List<dynamic> resultsList = responseJson["results"];
-    resultsList.forEach((propertyMap) => this._createNewRestaurant(propertyMap));
+    this.restaurants.clear();
+    resultsList.forEach((propertyMap) => this._createNewRestaurant(propertyMap, filterCriteria));
     this._updateObserver(false);
 
     return true;
@@ -87,12 +88,16 @@ mixin RestaurantsRepository on Model {
   }
 
   // region Helper Methods
-  void _createNewRestaurant(dynamic restaurantProps)
+  void _createNewRestaurant(dynamic restaurantProps, FilterCriteria filterCriteria)
   {
     Restaurant newRestaurant = new Restaurant();
     bool isParsed = newRestaurant.copyFrom(restaurantProps);
     if(isParsed)
     {
+      if(filterCriteria.openNow && !newRestaurant.isOpen){
+        return;
+      }
+
       this.restaurants.add(newRestaurant);
     }
   }
