@@ -4,6 +4,8 @@ import 'package:easyfood/domain/launcher.dart';
 import 'package:easyfood/domain/location.dart';
 import 'package:easyfood/domain/mapNavigator.dart';
 import 'package:easyfood/domain/restaurant.dart';
+import 'package:easyfood/screens/randomCardPage.dart';
+import 'package:easyfood/widgets/restaurantRandomCard.dart';
 import 'package:easyfood/widgets/reviewStars.dart';
 import 'package:share/share.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +75,7 @@ class RestaurantCardState extends State<RestaurantCard>
                     ]),
               ),
               onTap: () => 
-                Launcher(currentRestaurant.photosLink).open(),
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => RandomCardPage(currentRestaurant, widget.applicationEnvironment))),
             ),
             
           ),

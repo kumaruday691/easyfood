@@ -11,6 +11,7 @@ import 'package:easyfood/widgets/reviewStars.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:share/share.dart';
 
 class RestaurantRandomCard extends StatefulWidget {
   Restaurant restaurant;
@@ -254,7 +255,7 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
                   ),
                   onPressed: () {
                     //model.stop();
-                    Navigator.pop(context);
+                  Share.share(widget.restaurant.photosLink);
                   },
                 );
               },
