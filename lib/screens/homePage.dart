@@ -1,9 +1,10 @@
 import 'dart:math';
 
 import 'package:easyfood/domain/applicationEnvironment.dart';
+import 'package:easyfood/domain/likedRestaurant.dart';
 import 'package:easyfood/domain/location.dart';
 import 'package:easyfood/domain/restaurant.dart';
-import 'package:easyfood/domain/unitOfWork.dart';
+import 'package:easyfood/domain/repositoryModel.dart';
 import 'package:easyfood/screens/availableRestaurantsPage.dart';
 import 'package:easyfood/screens/favoritesPage.dart';
 import 'package:easyfood/screens/randomCardPage.dart';
@@ -25,6 +26,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  int pageIndex = 0;
+
   @override
   void initState() {
     // guard clause - no location found
@@ -47,6 +51,35 @@ class _HomePageState extends State<HomePage> {
   }
 
   Restaurant _getRandomRestaurant() {
+    if( widget.applicationEnvironment.tabIndex== 1){
+      return _randomizeLikedRestaurants();
+    }
+    else{
+      return _randomizeAvailableRestaurants();
+    }
+    
+  }
+
+  Restaurant _randomizeLikedRestaurants() {
+    List<LikedRestaurant> likedRestaurants = widget.applicationEnvironment.unitOfWork.likedRestaurants.values.toList();
+    if (likedRestaurants.length == 0) {
+     
+      return null;
+    }
+
+    Restaurant backedUpRestaurant = new Restaurant();
+    int maxLength = likedRestaurants.length;
+    if (maxLength == 1) {
+      backedUpRestaurant.copyFromBackUp(likedRestaurants[0]);
+      return backedUpRestaurant;
+    }
+
+    int randomIndex = 0 + new Random().nextInt(maxLength);
+    backedUpRestaurant.copyFromBackUp(likedRestaurants[randomIndex]);
+    return backedUpRestaurant;
+  }
+
+  Restaurant _randomizeAvailableRestaurants(){
     List<Restaurant> availableRestaurants =
         widget.applicationEnvironment.unitOfWork.restaurants;
     if (availableRestaurants.length == 0) {
@@ -82,7 +115,7 @@ class _HomePageState extends State<HomePage> {
           backgroundColorStart: Color(0xffff512f),
           backgroundColorEnd: Color(0xffdd2476),
           actions: <Widget>[
-            ScopedModelDescendant<UnitOfWork>(
+            ScopedModelDescendant<RepositoryModel>(
               builder: (context, child, model) {
                 return IconButton(
                   icon: Icon(Icons.refresh),
@@ -103,11 +136,31 @@ class _HomePageState extends State<HomePage> {
           onPressed: () {
             //navigateToCreateGoal(GoalClass("", ""));
             widget.applicationEnvironment.previouslyRandomizedRestaurant = null;
+            Restaurant randomRestaurant = this._getRandomRestaurant();
+            if(randomRestaurant == null){
+              showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Invalid"),
+            content: Text("No restaurant found to randomize."),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Okay"),
+                onPressed: () => {
+                  Navigator.of(context).pop()
+                  },
+              )
+            ],
+          );
+        });
+              return;
+            }
             Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => RandomCardPage(
-                        this._getRandomRestaurant(),
+                        randomRestaurant,
                         widget.applicationEnvironment)));
           },
           child: Icon(Icons.directions_run),

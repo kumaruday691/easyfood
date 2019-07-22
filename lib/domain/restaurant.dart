@@ -1,3 +1,5 @@
+import 'package:easyfood/domain/likedRestaurant.dart';
+
 import './location.dart';
 
 class Restaurant {
@@ -14,6 +16,7 @@ class Restaurant {
     photosLink = "";
     rating = 0.0;
     usersVoted = 0;
+    isLiked = false;
   }
 
   // region Properties
@@ -28,8 +31,17 @@ class Restaurant {
   String displayPhotoReference;
   dynamic rating;
   int usersVoted;
+  bool isLiked;
 
   // region Public Methods
+
+  void copyFromBackUp(LikedRestaurant likedRestaurant){
+    this.name = likedRestaurant.name;
+    this.placeReference = likedRestaurant.id;
+    this.location = new Location(latitude: likedRestaurant.latitude, longitude: likedRestaurant.longitude, address: likedRestaurant.address);
+    this.isOpen = likedRestaurant.isOpen;
+    this.displayPhotoReference = likedRestaurant.photoReference;
+  }
 
   bool copyFrom(dynamic resultsMap) {
     try {

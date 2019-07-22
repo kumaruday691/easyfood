@@ -3,14 +3,20 @@ import 'package:easyfood/domain/restaurantReview.dart';
 class RestaurantDetail {
   // region Constructor
   RestaurantDetail() {
+    googleSearchLink = "";
+    webSiteLink = "";
     formattedAddress = "";
-    phoneNumber = "";
+    formattedUserRating = "N/A";
+    phoneNumber = "N/A";
     weeklyOpenHours =[];
     photoReferences = [];
     reviews = [];
   }
 
   // region Properties
+  String googleSearchLink;
+  String webSiteLink;
+  String formattedUserRating;
   String formattedAddress;
   String phoneNumber;
   List<dynamic> weeklyOpenHours;
@@ -20,10 +26,12 @@ class RestaurantDetail {
   // region Public Methods
   RestaurantDetail copyFrom(Map<String, dynamic> resultsMap) {
     _extractFormattedAddress(resultsMap);
+    _extractedFormattedUserReviews(resultsMap);
     _extractPhoneNumber(resultsMap);
     _extractOpenHours(resultsMap);
     _extractPhotoReferences(resultsMap);
     _extractReviews(resultsMap);
+    _extractLinks(resultsMap);
 
     return this;
   }
@@ -41,6 +49,15 @@ class RestaurantDetail {
     this.reviews.add(restaurantReview);
   }
 
+  void _extractedFormattedUserReviews(Map<String, dynamic> resultsMap){
+   // guard clause
+    if (!resultsMap.containsKey("rating") || !resultsMap.containsKey("user_ratings_total")) {
+      return;
+    } 
+
+    this.formattedUserRating = "${resultsMap["rating"]}(${resultsMap["user_ratings_total"]})";
+  }
+
   void _extractFormattedAddress(Map<String, dynamic> resultsMap) {
     // guard clause
     if (!resultsMap.containsKey("formatted_address")) {
@@ -48,6 +65,16 @@ class RestaurantDetail {
     }
 
     this.formattedAddress = resultsMap["formatted_address"];
+  }
+
+  void _extractLinks(Map<String, dynamic> resultsMap){
+    if (resultsMap.containsKey("website")) {
+      this.webSiteLink = resultsMap["website"];
+    }
+ 
+    if (resultsMap.containsKey("url")) {
+      this.googleSearchLink = resultsMap["url"];
+    }
   }
 
   void _extractPhotoReferences(Map<String, dynamic> resultsMap)

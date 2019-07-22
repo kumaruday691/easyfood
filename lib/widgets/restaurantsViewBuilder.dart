@@ -1,6 +1,6 @@
 import 'package:easyfood/domain/applicationEnvironment.dart';
 import 'package:easyfood/domain/restaurant.dart';
-import 'package:easyfood/domain/unitOfWork.dart';
+import 'package:easyfood/domain/repositoryModel.dart';
 import 'package:easyfood/widgets/restaurantCard.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -25,7 +25,7 @@ class RestaurantsViewBuilder extends StatelessWidget {
   // override build Method
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<UnitOfWork>(builder: (context, widget, model) {
+    return ScopedModelDescendant<RepositoryModel>(builder: (context, widget, model) {
       return _renderItemIfApplicable(model.restaurants); 
     },); 
   }

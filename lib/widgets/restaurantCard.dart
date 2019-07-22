@@ -1,12 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easyfood/domain/applicationEnvironment.dart';
 import 'package:easyfood/domain/launcher.dart';
+import 'package:easyfood/domain/likedRestaurant.dart';
 import 'package:easyfood/domain/location.dart';
 import 'package:easyfood/domain/mapNavigator.dart';
 import 'package:easyfood/domain/restaurant.dart';
 import 'package:easyfood/screens/randomCardPage.dart';
-import 'package:easyfood/widgets/restaurantRandomCard.dart';
-import 'package:easyfood/widgets/reviewStars.dart';
 import 'package:share/share.dart';
 import 'package:flutter/material.dart';
 
@@ -215,6 +214,32 @@ class RestaurantCardState extends State<RestaurantCard>
 
     MapNavigator.navigate(currentLocation, restaurantLocation);    
   }
+  
+  _handleLikeAction() {
+    if(widget.currentRestaurant.isLiked){
+      widget.applicationEnvironment.unitOfWork.unLikeRestaurant(widget.currentRestaurant.id);
+      setState(() {
+        widget.currentRestaurant.isLiked = false;
+      });
+    }
+    else{
+      LikedRestaurant likedRestaurant = new LikedRestaurant();
+      likedRestaurant.id = widget.currentRestaurant.placeReference;
+      likedRestaurant.name = widget.currentRestaurant.name;
+      likedRestaurant.photoReference = widget.currentRestaurant.displayPhotoReference;
+      likedRestaurant.address = widget.currentRestaurant.location != null ? widget.currentRestaurant.location.address : "N/A";
+      likedRestaurant.latitude = widget.currentRestaurant.location != null ? widget.currentRestaurant.location.latitude : 0;
+      likedRestaurant.longitude = widget.currentRestaurant.location != null ? widget.currentRestaurant.location.longitude : 0;
+      likedRestaurant.isOpen = widget.currentRestaurant.isOpen;
+      widget.applicationEnvironment.unitOfWork.saveLikedRestaurant(likedRestaurant);
+      setState(() {
+        widget.currentRestaurant.isLiked = true;
+      });
+    }
+
+    widget.applicationEnvironment.unitOfWork.loadLikedRestaurants();
+    
+  }
 
   _headerItemBuild() {
     return Align(
@@ -239,11 +264,13 @@ class RestaurantCardState extends State<RestaurantCard>
               
               IconButton(
                 icon: Icon(
-                  Icons.favorite_border,
+                  widget.currentRestaurant.isLiked? Icons.favorite :Icons.favorite_border,
                   color: Theme.of(context).accentColor,
                   size: 20,
                 ),
-                onPressed: () => {},
+                onPressed: () => {
+                  _handleLikeAction()
+                },
               ),
 
               IconButton(

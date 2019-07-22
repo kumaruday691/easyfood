@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:easyfood/domain/filterCriteria.dart';
 import 'package:easyfood/domain/location.dart';
 import 'package:easyfood/domain/restaurant.dart';
-import 'package:easyfood/domain/unitOfWork.dart';
+import 'package:easyfood/domain/repositoryModel.dart';
 import 'package:easyfood/screens/filterPage.dart';
 import 'package:flutter/material.dart';
 import 'package:gradient_app_bar/gradient_app_bar.dart';
@@ -12,16 +12,19 @@ class ApplicationEnvironment {
 
   // region Constructor
   ApplicationEnvironment() {
-    unitOfWork = new UnitOfWork();
+    tabIndex = 0;
+    unitOfWork = new RepositoryModel();
     themeData = _createThemeData();
     location = null;
     previouslyRandomizedRestaurant = null;
 
     _findOrAddFilterCriteria(); 
+    _loadLikedRestaurants();
   }
 
   // region Properties
-  UnitOfWork unitOfWork;
+  int tabIndex ;
+  RepositoryModel unitOfWork;
   ThemeData themeData;
   Location location;
   FilterCriteria filterCriteria;
@@ -97,6 +100,10 @@ class ApplicationEnvironment {
         accentColor: Colors.orangeAccent,
         cardColor: Colors.tealAccent,
         );
+  }
+
+  void _loadLikedRestaurants() async {
+    unitOfWork.loadLikedRestaurants();
   }
 
   void _findOrAddFilterCriteria() async{

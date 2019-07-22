@@ -6,10 +6,11 @@ import 'package:easyfood/domain/mapNavigator.dart';
 import 'package:easyfood/domain/restaurant.dart';
 import 'package:easyfood/domain/restaurantDetail.dart';
 import 'package:easyfood/domain/restaurantReview.dart';
-import 'package:easyfood/domain/unitOfWork.dart';
+import 'package:easyfood/domain/repositoryModel.dart';
 import 'package:easyfood/widgets/reviewStars.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:share/share.dart';
 
@@ -216,6 +217,17 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
     MapNavigator.navigate(currentLocation, restaurantLocation);
   }
 
+    _buildWebsiteLinkIfApplicable(RestaurantDetail restaurantDetail){
+      if(restaurantDetail.webSiteLink.isEmpty) {
+        return Container();
+      }
+
+      return 
+          ActionChip(avatar:Icon(FontAwesomeIcons.clipboardList, color: Colors.orange, size: 20,),label: Text("Website", style: TextStyle(decoration: TextDecoration.underline, color: Colors.redAccent), ), onPressed: () => {
+            Launcher(restaurantDetail.webSiteLink).open()
+          },);
+    }
+
   @override
   Widget build(BuildContext context) {
     // previously selected restaurant
@@ -246,7 +258,7 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
           right: 0.0,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ScopedModelDescendant<UnitOfWork>(
+            child: ScopedModelDescendant<RepositoryModel>(
               builder: (_, __, model) {
                 return IconButton(
                   icon: Icon(
@@ -268,7 +280,7 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
       left: 0.0,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ScopedModelDescendant<UnitOfWork>(
+        child: ScopedModelDescendant<RepositoryModel>(
           builder: (_, __, model) {
             return IconButton(
               icon: Icon(
@@ -307,7 +319,7 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
           ActionChip(
             avatar: widget.restaurant.isOpen ? Icon(Icons.lock_open, color: Colors.green, size: 15,) : Icon(Icons.lock_outline, color: Colors.red,size: 15,),
             label: Text(
-              widget.restaurant.isOpen ? "Open" : "Closed Now",
+              widget.restaurant.isOpen ? "Open" : "Closed",
               textAlign: TextAlign.left,
               style: TextStyle(
                   decoration: TextDecoration.underline,
@@ -325,7 +337,7 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
             // ),
             avatar: Icon(Icons.stars, color: Colors.orange),
             label: Text(
-              widget.restaurant.buildFormattedUserReview(),
+              restaurantDetail.formattedUserRating,
               textAlign: TextAlign.center,
               style: TextStyle(
                   decoration: TextDecoration.underline,
@@ -335,7 +347,9 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
             ),
             //onPressed: () => ReviewCard(restaurantDetail.reviews, widget.applicationEnvironment),
             onPressed: () => _showReviewsModal(),
+            
           ),
+          _buildWebsiteLinkIfApplicable(restaurantDetail)
         ],
       ),
     ),);
@@ -440,7 +454,7 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
       // setState(() {
 
       // });
-      return ScopedModelDescendant<UnitOfWork>(
+      return ScopedModelDescendant<RepositoryModel>(
         builder: (context, widget, model) {
           return ListView.builder(
               itemBuilder: (BuildContext context, int index) =>
@@ -539,7 +553,7 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
               onTap: () => {
                     widget.applicationEnvironment
                         .previouslyRandomizedRestaurant = widget.restaurant,
-                    Launcher(widget.restaurant.photosLink).open()
+                    Launcher(restaurantDetail.googleSearchLink).open()
                   },
             ),
             _infoSection,
@@ -552,7 +566,7 @@ class RestaurantRandomCardState extends State<RestaurantRandomCard> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 28.0),
-      child: ScopedModelDescendant<UnitOfWork>(
+      child: ScopedModelDescendant<RepositoryModel>(
         builder: (_, __, model) {
           return Stack(
             children: <Widget>[
