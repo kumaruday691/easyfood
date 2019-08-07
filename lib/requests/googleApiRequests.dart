@@ -25,6 +25,20 @@ class GoogleApiRequests {
     return await http.get(uri);
   }
 
+  static Future<http.Response> fetchNextPageRestaurants(String nextPageToken) async{
+    // guard clause - invalid token
+    if(nextPageToken.isEmpty || nextPageToken == null){
+      return null;
+    }
+
+    final Uri uri =  Uri.https('maps.googleapis.com', '/maps/api/place/nearbysearch/json', {
+      'key': 'AIzaSyC5Qhe19ZLVWIZ5xCfLRzeRpvTzYU_X2PM',
+      'pagetoken' : nextPageToken
+    }); 
+
+    return await http.get(uri);
+  }
+
   static Future<http.Response> fetchRestaurantDetail(String placeId) async {
     // guard clause
     if(placeId.isEmpty) {

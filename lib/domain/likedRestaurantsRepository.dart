@@ -58,8 +58,15 @@ mixin LikedRestaurantsRepository on Model {
   Future<bool> unLikeRestaurant(String id) async{
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove("likedRestaurants");
-    this.likedRestaurants.clear();
+    this.likedRestaurants.remove(id);
+    Map<String, dynamic> toSaveLikedRestaurants = {};
+    this.likedRestaurants.forEach((String key, LikedRestaurant lr) => toSaveLikedRestaurants[key] = lr.toMap());
+    prefs.setString("likedRestaurants", jsonEncode(toSaveLikedRestaurants));
+    bool isSaved = prefs.containsKey("likedRestaurants");
+    print(isSaved);
     this.isLoading = false;
+    notifyListeners();
+    return true;
   }
 
   // region Helper Methods

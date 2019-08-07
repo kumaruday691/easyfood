@@ -217,7 +217,7 @@ class RestaurantCardState extends State<RestaurantCard>
   
   _handleLikeAction() {
     if(widget.currentRestaurant.isLiked){
-      widget.applicationEnvironment.unitOfWork.unLikeRestaurant(widget.currentRestaurant.id);
+      widget.applicationEnvironment.unitOfWork.unLikeRestaurant(widget.currentRestaurant.placeReference);
       setState(() {
         widget.currentRestaurant.isLiked = false;
       });

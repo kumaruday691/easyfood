@@ -13,6 +13,7 @@ mixin RestaurantsRepository on Model {
   // region Properties
   List<Restaurant> restaurants;
   bool isLoading;
+  String nextPageToken;
 
   // region Public Methods
  
@@ -59,6 +60,7 @@ mixin RestaurantsRepository on Model {
         newRestaurant.isLiked = true;
       }
       this.restaurants.add(newRestaurant);
+      notifyListeners();
     }
   }
 

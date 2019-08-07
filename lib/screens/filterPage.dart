@@ -18,7 +18,10 @@ class FilterPage extends StatefulWidget {
     "japanese",
     "continental",
     "mexican",
-    "american(really?)"
+    "american",
+    "vietnamese",
+    "cajun",
+    "greek"
   ];
 
   final ApplicationEnvironment applicationEnvironment;

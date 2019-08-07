@@ -1,5 +1,7 @@
 import 'package:easyfood/domain/applicationEnvironment.dart';
 import 'package:easyfood/domain/likedRestaurant.dart';
+import 'package:easyfood/domain/location.dart';
+import 'package:easyfood/domain/mapNavigator.dart';
 import 'package:easyfood/domain/repositoryModel.dart';
 import 'package:easyfood/domain/restaurant.dart';
 import 'package:easyfood/screens/randomCardPage.dart';
@@ -48,7 +50,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
               color: Colors.red,
             ),
             onDismissed: (DismissDirection direction) {
-              if (direction == DismissDirection.endToStart) {}
+              if (direction == DismissDirection.endToStart) {
+                widget.applicationEnvironment.unitOfWork.unLikeRestaurant(currentLikedRestaurant.id);
+                widget.applicationEnvironment.refreshRestaurantsList();
+              }
             },
             child: Column(
               children: <Widget>[
@@ -67,7 +72,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
                         Icons.navigation,
                         color: Theme.of(context).primaryColor,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                       _showMapNavigation(currentLikedRestaurant); 
+                      },
                     )),
                 Divider(),
               ],
@@ -80,7 +87,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   _buildRandomCard(LikedRestaurant likedRestaurant) {
-    {
       Restaurant backedUpRestaurant = new Restaurant();
       backedUpRestaurant.copyFromBackUp(likedRestaurant);
       Navigator.push(
@@ -89,5 +95,23 @@ class _FavoritesPageState extends State<FavoritesPage> {
               builder: (context) =>
                   RandomCardPage(backedUpRestaurant, widget.applicationEnvironment)));
     }
+
+  _showMapNavigation(LikedRestaurant likedRestaurant)
+  {
+    Location restaurantLocation = new Location(latitude: likedRestaurant.latitude, longitude: likedRestaurant.longitude, address: likedRestaurant.address);
+    if(restaurantLocation == null)
+    {
+      return;
+    }
+
+    Location currentLocation = widget.applicationEnvironment.location;
+    if(currentLocation == null)
+    {
+      return;
+    }
+
+    MapNavigator.navigate(currentLocation, restaurantLocation);    
   }
-}
+  
+  }
+
